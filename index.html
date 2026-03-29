@@ -3,151 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Easy Web App | Sign Up</title>
+    <title>Easy App | Login & Signup</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #0a0a0a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-
-        .container {
-            width: 100%; max-width: 400px; padding: 30px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #d4af37;
-            border-radius: 20px; backdrop-filter: blur(10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            text-align: center;
-        }
-
-        h2 { color: #d4af37; margin-bottom: 25px; }
-
-        .input-box { position: relative; margin: 15px 0; }
-        
-        input {
-            width: 100%; padding: 12px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 10px; color: #fff; outline: none;
-        }
-
-        /* পাসওয়ার্ড টগল বাটন */
-        .toggle-password {
-            position: absolute; right: 10px; top: 50%;
-            transform: translateY(-50%); cursor: pointer;
-            color: #d4af37; font-size: 14px;
-        }
-
-        .btn {
-            width: 100%; padding: 12px; border: none; border-radius: 10px;
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-            margin-top: 15px; text-transform: uppercase;
-        }
-
+        .container { width: 350px; padding: 30px; background: rgba(255,255,255,0.05); border: 1px solid #d4af37; border-radius: 20px; text-align: center; }
+        h2 { color: #d4af37; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; border-radius: 10px; color: #fff; outline: none; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-gold { background: linear-gradient(45deg, #d4af37, #f9e29c); color: #000; }
-        #otp-box { display: none; margin-top: 20px; border-top: 1px dashed #444; padding-top: 20px; }
+        .switch-btn { margin-top: 15px; font-size: 13px; color: #aaa; cursor: pointer; }
+        #login-form { display: none; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>CREATE ACCOUNT</h2>
-        
-        <div id="setup-fields">
-            <div class="input-box">
-                <input type="email" id="email" placeholder="Gmail Address">
-            </div>
-            
-            <div class="input-box">
-                <input type="tel" id="phone" placeholder="01XXXXXXXXX">
-            </div>
-
-            <div class="input-box">
-                <input type="password" id="password" placeholder="Password (min 6 chars)">
-                <span class="toggle-password" onclick="togglePass()">SHOW</span>
-            </div>
-            
-            <div id="recaptcha-container"></div>
-            
-            <button class="btn btn-gold" id="send-otp-btn">Get Verification Code</button>
+        <div id="signup-form">
+            <h2>SIGN UP</h2>
+            <input type="text" id="reg-name" placeholder="Full Name">
+            <input type="email" id="reg-email" placeholder="Email Address">
+            <input type="tel" id="reg-phone" placeholder="Phone Number">
+            <input type="password" id="reg-pass" placeholder="Password (min 6 chars)">
+            <button class="btn btn-gold" onclick="handleSignup()">Create Account</button>
+            <p class="switch-btn" onclick="toggleForm('login')">Already have an account? Login</p>
         </div>
 
-        <div id="otp-box">
-            <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;">আপনার ফোনে পাঠানো কোডটি দিন</p>
-            <input type="text" id="otp-input" placeholder="OTP Code" style="text-align: center;">
-            <button class="btn btn-gold" id="verify-otp-btn" style="background: #28a745; color: #fff;">Verify & Sign Up</button>
+        <div id="login-form">
+            <h2>LOGIN</h2>
+            <input type="email" id="login-email" placeholder="Email Address">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button class="btn btn-gold" onclick="handleLogin()">Login Now</button>
+            <p class="switch-btn" onclick="toggleForm('signup')">New here? Sign Up</p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // আপনার ফায়ারবেস কনফিগ
         const firebaseConfig = {
             apiKey: "AIzaSyChG38Jq4soYwSj4qyBje45ZrrD8DcPclk",
             authDomain: "easy-50e2d.firebaseapp.com",
-            databaseURL: "https://easy-50e2d-default-rtdb.firebaseio.com",
             projectId: "easy-50e2d",
             storageBucket: "easy-50e2d.firebasestorage.app",
             messagingSenderId: "137085905024",
-            appId: "1:137085905024:web:2195237879f0d644a35e65",
-            measurementId: "G-WT28EDD9N8"
+            appId: "1:137085905024:web:2195237879f0d644a35e65"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // পাসওয়ার্ড ভিউ টগল ফাংশন
-        window.togglePass = () => {
-            const passInput = document.getElementById('password');
-            const toggleText = document.querySelector('.toggle-password');
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                toggleText.innerText = "HIDE";
-            } else {
-                passInput.type = "password";
-                toggleText.innerText = "SHOW";
+        // ফর্ম পরিবর্তন করার ফাংশন
+        window.toggleForm = (type) => {
+            document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
+            document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
+        }
+
+        // সাইন আপ লজিক
+        window.handleSignup = async () => {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
+
+                // ডাটাবেজে ইউজারের তথ্য সেভ করা (যাতে পরে ব্যবহার করা যায়)
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: name,
+                    email: email,
+                    phoneNumber: phone,
+                    createdAt: new Date()
+                });
+
+                alert("Account created successfully!");
+                // এখানে ড্যাশবোর্ডে পাঠানোর কোড লিখুন
+            } catch (error) {
+                alert("Error: " + error.message);
             }
         };
 
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
-
-        document.getElementById('send-otp-btn').addEventListener('click', async () => {
-            let phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('password').value;
-
-            // নম্বর অটো ফরম্যাট করা
-            if(phone.startsWith("0")) { phone = "+88" + phone; }
-
-            if(email === "" || pass.length < 6 || phone.length < 13) {
-                alert("দয়া করে সঠিক জিমেইল এবং ১১ ডিজিটের ফোন নম্বর দিন।");
-                return;
-            }
+        // লগইন লজিক
+        window.handleLogin = async () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
 
             try {
-                const appVerifier = window.recaptchaVerifier;
-                const confirmationResult = await signInWithPhoneNumber(auth, phone, appVerifier);
-                window.confirmationResult = confirmationResult;
-                window.tempData = { email, pass };
-
-                document.getElementById('setup-fields').style.display = "none";
-                document.getElementById('otp-box').style.display = "block";
-                alert("আপনার নম্বরে SMS পাঠানো হয়েছে!");
+                await signInWithEmailAndPassword(auth, email, pass);
+                alert("Login successful! Welcome back.");
+                // ড্যাশবোর্ডে রিডাইরেক্ট
             } catch (error) {
-                alert("এরর: " + error.message);
+                alert("Invalid Email or Password!");
             }
-        });
-
-        document.getElementById('verify-otp-btn').addEventListener('click', async () => {
-            const code = document.getElementById('otp-input').value;
-            try {
-                await window.confirmationResult.confirm(code);
-                await createUserWithEmailAndPassword(auth, window.tempData.email, window.tempData.pass);
-                alert("অভিনন্দন! একাউন্ট সফলভাবে তৈরি হয়েছে।");
-                location.reload(); 
-            } catch (error) {
-                alert("ভুল কোড বা টেকনিক্যাল সমস্যা!");
-            }
-        });
+        };
     </script>
 </body>
 </html>
