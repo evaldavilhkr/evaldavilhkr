@@ -3,148 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EarnPoint - টাস্ক পূরণ করে আয় করুন</title>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Easy Web App | Sign Up</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --accent-color: #f59e0b;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-        }
-
-        body {
-            font-family: 'Hind Siliguri', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        /* প্রিমিয়াম ডার্ক থিম স্টাইল */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0a0a0a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 
         .container {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 15px;
+            width: 100%; max-width: 400px; padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #d4af37; /* আপনার পছন্দমতো গোল্ডেন বর্ডার */
+            border-radius: 20px; backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
         }
 
-        .task-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-left: 5px solid var(--accent-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        h2 { color: #d4af37; margin-bottom: 25px; letter-spacing: 1px; }
+
+        input {
+            width: 100%; padding: 12px; margin: 10px 0;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px; color: #fff; outline: none;
         }
 
-        .task-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--primary-color);
-        }
+        input:focus { border-color: #d4af37; }
 
         .btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
+            width: 100%; padding: 12px; border: none; border-radius: 10px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+            margin-top: 15px; text-transform: uppercase;
         }
 
-        .btn:hover { background-color: #1d4ed8; }
+        .btn-gold { background: linear-gradient(45deg, #d4af37, #f9e29c); color: #000; }
+        .btn-verify { background: #28a745; color: #fff; display: none; }
 
-        .proof-form {
-            display: none;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed #ccc;
-        }
-
-        input[type="text"], input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        footer { text-align: center; padding: 2rem; color: #64748b; }
+        #otp-box { display: none; margin-top: 20px; border-top: 1px dashed #444; padding-top: 20px; }
+        #recaptcha-container { margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<header>
-    <h2>EarnPoint</h2>
-    <div>ID: <span id="user-id">Ritom2026</span></div>
-</header>
-
-<div class="container">
-    <div class="balance-card">
-        <p>আপনার বর্তমান ব্যালেন্স</p>
-        <h1 id="balance">৳ ০.০০</h1>
-        <button class="btn" style="background: var(--accent-color);">উইথড্র করুন</button>
-    </div>
-
-    <h3>নতুন টাস্ক (Available Tasks)</h3>
-
-    <div class="task-card">
-        <div class="task-title">ফেসবুক গ্রুপে লিংক শেয়ার করুন</div>
-        <p>নির্দেশনা: নিচে দেওয়া লিংকটি কপি করে আপনার পছন্দের একটি ফেসবুক গ্রুপে পোস্ট করুন এবং স্ক্রিনশট দিন।</p>
-        <p><strong>লিংক:</strong> <span style="color: blue;">https://your-link-here.com</span></p>
-        <p>পুরস্কার: <strong>৳ ৫.০০</strong></p>
+    <div class="container">
+        <h2>CREATE ACCOUNT</h2>
         
-        <button class="btn" onclick="toggleForm('form1')">কাজটি শুরু করুন</button>
+        <div id="setup-fields">
+            <input type="email" id="email" placeholder="Gmail Address">
+            <input type="tel" id="phone" placeholder="+8801XXXXXXXXX">
+            <input type="password" id="password" placeholder="Password (min 6 chars)">
+            
+            <div id="recaptcha-container"></div>
+            
+            <button class="btn btn-gold" id="send-otp-btn">Get Verification Code</button>
+        </div>
 
-        <div id="form1" class="proof-form">
-            <label>আপনার পোস্টের লিংক দিন:</label>
-            <input type="text" placeholder="https://facebook.com/groups/post...">
-            <label>স্ক্রিনশট আপলোড করুন:</label>
-            <input type="file" accept="image/*">
-            <button class="btn" style="width: 100%;" onclick="submitTask()">সাবমিট করুন</button>
+        <div id="otp-box">
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;">আপনার ফোনে পাঠানো ৬ ডিজিটের কোড দিন</p>
+            <input type="text" id="otp-input" placeholder="X X X X X X" style="text-align: center; letter-spacing: 5px;">
+            <button class="btn btn-verify" id="verify-otp-btn" style="display: block;">Verify & Sign Up</button>
         </div>
     </div>
-</div>
 
-<footer>
-    &copy; 2026 EarnPoint | Developed for Ritom Saha
-</footer>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-<script>
-    function toggleForm(formId) {
-        const form = document.getElementById(formId);
-        form.style.display = (form.style.display === "block") ? "none" : "block";
-    }
+        // আপনার প্রজেক্ট কনফিগ
+        const firebaseConfig = {
+            apiKey: "AIzaSyChG38Jq4soYwSj4qyBje45ZrrD8DcPclk",
+            authDomain: "easy-50e2d.firebaseapp.com",
+            databaseURL: "https://easy-50e2d-default-rtdb.firebaseio.com",
+            projectId: "easy-50e2d",
+            storageBucket: "easy-50e2d.firebasestorage.app",
+            messagingSenderId: "137085905024",
+            appId: "1:137085905024:web:2195237879f0d644a35e65",
+            measurementId: "G-WT28EDD9N8"
+        };
 
-    function submitTask() {
-        alert("আপনার কাজ জমা হয়েছে! অ্যাডমিন চেক করে টাকা যোগ করে দিবে।");
-        location.reload();
-    }
-</script>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
+        // ১. reCAPTCHA ভেরিফায়ার সেটআপ
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'normal' // আপনি চাইলে 'invisible' করতে পারেন
+        });
+
+        // ২. OTP পাঠানোর ফাংশন
+        document.getElementById('send-otp-btn').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+
+            if(!phoneNumber.startsWith("+880") || email === "" || pass.length < 6) {
+                alert("সঠিকভাবে সব তথ্য দিন (পাসওয়ার্ড অন্তত ৬ অক্ষর হতে হবে)");
+                return;
+            }
+
+            try {
+                const appVerifier = window.recaptchaVerifier;
+                const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+                window.confirmationResult = confirmationResult;
+                
+                // তথ্য সেভ রাখা
+                window.tempData = { email, pass };
+
+                document.getElementById('setup-fields').style.opacity = "0.3";
+                document.getElementById('setup-fields').style.pointerEvents = "none";
+                document.getElementById('otp-box').style.display = "block";
+                alert("আপনার ফোনে কোড পাঠানো হয়েছে!");
+            } catch (error) {
+                console.error(error);
+                alert("SMS পাঠানো সম্ভব হয়নি। দয়া করে নম্বর চেক করুন বা পরে চেষ্টা করুন।");
+            }
+        });
+
+        // ৩. OTP যাচাই ও একাউন্ট তৈরি
+        document.getElementById('verify-otp-btn').addEventListener('click', async () => {
+            const code = document.getElementById('otp-input').value;
+            try {
+                // প্রথমে ফোন ভেরিফাই হবে
+                await window.confirmationResult.confirm(code);
+                
+                // ফোন ভেরিফাই হলে ইমেইল দিয়ে ফায়ারবেস একাউন্ট তৈরি হবে
+                await createUserWithEmailAndPassword(auth, window.tempData.email, window.tempData.pass);
+                
+                alert("অভিনন্দন Ritom! আপনার একাউন্ট সফলভাবে তৈরি হয়েছে।");
+                // এখানে আপনি ড্যাশবোর্ড পেজের লিঙ্ক দিতে পারেন
+                // window.location.href = "dashboard.html"; 
+            } catch (error) {
+                console.error(error);
+                alert("ভুল কোড! আবার চেষ্টা করুন।");
+            }
+        });
+    </script>
 </body>
 </html>
