@@ -5,29 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Easy Web App | Sign Up</title>
     <style>
-        /* প্রিমিয়াম ডার্ক থিম স্টাইল */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #0a0a0a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 
         .container {
             width: 100%; max-width: 400px; padding: 30px;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #d4af37; /* আপনার পছন্দমতো গোল্ডেন বর্ডার */
+            border: 1px solid #d4af37;
             border-radius: 20px; backdrop-filter: blur(10px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             text-align: center;
         }
 
-        h2 { color: #d4af37; margin-bottom: 25px; letter-spacing: 1px; }
+        h2 { color: #d4af37; margin-bottom: 25px; }
 
+        .input-box { position: relative; margin: 15px 0; }
+        
         input {
-            width: 100%; padding: 12px; margin: 10px 0;
+            width: 100%; padding: 12px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 10px; color: #fff; outline: none;
         }
 
-        input:focus { border-color: #d4af37; }
+        /* পাসওয়ার্ড টগল বাটন */
+        .toggle-password {
+            position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%); cursor: pointer;
+            color: #d4af37; font-size: 14px;
+        }
 
         .btn {
             width: 100%; padding: 12px; border: none; border-radius: 10px;
@@ -36,10 +42,7 @@
         }
 
         .btn-gold { background: linear-gradient(45deg, #d4af37, #f9e29c); color: #000; }
-        .btn-verify { background: #28a745; color: #fff; display: none; }
-
         #otp-box { display: none; margin-top: 20px; border-top: 1px dashed #444; padding-top: 20px; }
-        #recaptcha-container { margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -48,9 +51,18 @@
         <h2>CREATE ACCOUNT</h2>
         
         <div id="setup-fields">
-            <input type="email" id="email" placeholder="Gmail Address">
-            <input type="tel" id="phone" placeholder="+8801XXXXXXXXX">
-            <input type="password" id="password" placeholder="Password (min 6 chars)">
+            <div class="input-box">
+                <input type="email" id="email" placeholder="Gmail Address">
+            </div>
+            
+            <div class="input-box">
+                <input type="tel" id="phone" placeholder="01XXXXXXXXX">
+            </div>
+
+            <div class="input-box">
+                <input type="password" id="password" placeholder="Password (min 6 chars)">
+                <span class="toggle-password" onclick="togglePass()">SHOW</span>
+            </div>
             
             <div id="recaptcha-container"></div>
             
@@ -58,9 +70,9 @@
         </div>
 
         <div id="otp-box">
-            <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;">আপনার ফোনে পাঠানো ৬ ডিজিটের কোড দিন</p>
-            <input type="text" id="otp-input" placeholder="X X X X X X" style="text-align: center; letter-spacing: 5px;">
-            <button class="btn btn-verify" id="verify-otp-btn" style="display: block;">Verify & Sign Up</button>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;">আপনার ফোনে পাঠানো কোডটি দিন</p>
+            <input type="text" id="otp-input" placeholder="OTP Code" style="text-align: center;">
+            <button class="btn btn-gold" id="verify-otp-btn" style="background: #28a745; color: #fff;">Verify & Sign Up</button>
         </div>
     </div>
 
@@ -68,7 +80,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // আপনার প্রজেক্ট কনফিগ
+        // আপনার ফায়ারবেস কনফিগ
         const firebaseConfig = {
             apiKey: "AIzaSyChG38Jq4soYwSj4qyBje45ZrrD8DcPclk",
             authDomain: "easy-50e2d.firebaseapp.com",
@@ -83,56 +95,57 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // ১. reCAPTCHA ভেরিফায়ার সেটআপ
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'normal' // আপনি চাইলে 'invisible' করতে পারেন
-        });
+        // পাসওয়ার্ড ভিউ টগল ফাংশন
+        window.togglePass = () => {
+            const passInput = document.getElementById('password');
+            const toggleText = document.querySelector('.toggle-password');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                toggleText.innerText = "HIDE";
+            } else {
+                passInput.type = "password";
+                toggleText.innerText = "SHOW";
+            }
+        };
 
-        // ২. OTP পাঠানোর ফাংশন
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
+
         document.getElementById('send-otp-btn').addEventListener('click', async () => {
-            const phoneNumber = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
+            let phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('password').value;
 
-            if(!phoneNumber.startsWith("+880") || email === "" || pass.length < 6) {
-                alert("সঠিকভাবে সব তথ্য দিন (পাসওয়ার্ড অন্তত ৬ অক্ষর হতে হবে)");
+            // নম্বর অটো ফরম্যাট করা
+            if(phone.startsWith("0")) { phone = "+88" + phone; }
+
+            if(email === "" || pass.length < 6 || phone.length < 13) {
+                alert("দয়া করে সঠিক জিমেইল এবং ১১ ডিজিটের ফোন নম্বর দিন।");
                 return;
             }
 
             try {
                 const appVerifier = window.recaptchaVerifier;
-                const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+                const confirmationResult = await signInWithPhoneNumber(auth, phone, appVerifier);
                 window.confirmationResult = confirmationResult;
-                
-                // তথ্য সেভ রাখা
                 window.tempData = { email, pass };
 
-                document.getElementById('setup-fields').style.opacity = "0.3";
-                document.getElementById('setup-fields').style.pointerEvents = "none";
+                document.getElementById('setup-fields').style.display = "none";
                 document.getElementById('otp-box').style.display = "block";
-                alert("আপনার ফোনে কোড পাঠানো হয়েছে!");
+                alert("আপনার নম্বরে SMS পাঠানো হয়েছে!");
             } catch (error) {
-                console.error(error);
-                alert("SMS পাঠানো সম্ভব হয়নি। দয়া করে নম্বর চেক করুন বা পরে চেষ্টা করুন।");
+                alert("এরর: " + error.message);
             }
         });
 
-        // ৩. OTP যাচাই ও একাউন্ট তৈরি
         document.getElementById('verify-otp-btn').addEventListener('click', async () => {
             const code = document.getElementById('otp-input').value;
             try {
-                // প্রথমে ফোন ভেরিফাই হবে
                 await window.confirmationResult.confirm(code);
-                
-                // ফোন ভেরিফাই হলে ইমেইল দিয়ে ফায়ারবেস একাউন্ট তৈরি হবে
                 await createUserWithEmailAndPassword(auth, window.tempData.email, window.tempData.pass);
-                
-                alert("অভিনন্দন Ritom! আপনার একাউন্ট সফলভাবে তৈরি হয়েছে।");
-                // এখানে আপনি ড্যাশবোর্ড পেজের লিঙ্ক দিতে পারেন
-                // window.location.href = "dashboard.html"; 
+                alert("অভিনন্দন! একাউন্ট সফলভাবে তৈরি হয়েছে।");
+                location.reload(); 
             } catch (error) {
-                console.error(error);
-                alert("ভুল কোড! আবার চেষ্টা করুন।");
+                alert("ভুল কোড বা টেকনিক্যাল সমস্যা!");
             }
         });
     </script>
